@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
-import { ArrowUpRight, Check, Copy, Send } from "lucide-react";
+import { Check, Copy, Send } from "lucide-react";
 import { gsap, useGSAP, MQ } from "@/lib/gsap";
 import { contact, photos, profile } from "@/content";
 import { isTodo } from "@/lib/todo";
@@ -25,8 +25,8 @@ export default function Transmission() {
   const root = useRef<HTMLElement>(null);
   const [copied, setCopied] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
-  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
-  const [note, setNote] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "handoff">("idle");
+  const [mailto, setMailto] = useState("");
 
   useGSAP(
     () => {
@@ -84,18 +84,17 @@ export default function Transmission() {
         body: JSON.stringify(data),
       });
       if (res.ok) {
-        setNote("");
         setStatus("sent");
         return;
       }
       throw new Error(String(res.status));
     } catch {
-      // No email service configured (or offline): hand off to the visitor's mail app.
+      // Server couldn't send (not configured, or offline). Be honest about it and
+      // offer the visitor's own mail app with the message pre-filled.
       const subject = encodeURIComponent(`Hello from ${data.name}`);
       const body = encodeURIComponent(`${data.message}\n\n— ${data.name} (${data.email})`);
-      window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
-      setNote("Your email app should open with the message ready to send.");
-      setStatus("sent");
+      setMailto(`mailto:${profile.email}?subject=${subject}&body=${body}`);
+      setStatus("handoff");
     }
   };
 
@@ -173,16 +172,6 @@ export default function Transmission() {
                   </a>
                 </li>
               ))}
-              <li>
-                <a
-                  href={profile.socials.currentSite}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="label inline-flex items-center gap-2 rounded-full border border-mist/30 px-4 py-2.5 text-bone transition-colors hover:border-signal hover:text-signal"
-                >
-                  aurevondev <ArrowUpRight size={14} strokeWidth={1.5} aria-hidden />
-                </a>
-              </li>
             </ul>
 
             <div className="tx-fade mt-14 hidden w-48 lg:block">
@@ -191,10 +180,28 @@ export default function Transmission() {
           </div>
 
           <div className="tx-fade rounded-2xl border border-signal/20 bg-void/60 p-7 shadow-[0_0_80px_-30px_var(--signal)] backdrop-blur-md md:p-10">
-            {status === "sent" ? (
+            {status === "handoff" ? (
+              <div className="flex min-h-[340px] flex-col justify-center" role="alert">
+                <p className="display text-[clamp(40px,5vw,68px)] text-ember">Not sent yet</p>
+                <p className="mt-4 text-mist">
+                  The form couldn&apos;t deliver your message right now. Send it from your own email app
+                  instead, it&apos;s already written for you.
+                </p>
+                <a href={mailto} className="btn-signal mt-8 self-start">
+                  Open email app <Send size={15} strokeWidth={1.5} aria-hidden />
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setStatus("idle")}
+                  className="label mt-6 self-start text-mist underline underline-offset-4 hover:text-signal"
+                >
+                  Back to the form
+                </button>
+              </div>
+            ) : status === "sent" ? (
               <div className="flex min-h-[340px] flex-col justify-center" role="status" aria-live="polite">
                 <p className="display text-[clamp(48px,6vw,84px)] text-signal">{contact.success}</p>
-                <p className="mt-4 text-mist">{note || contact.successBody}</p>
+                <p className="mt-4 text-mist">{contact.successBody}</p>
                 <button
                   type="button"
                   onClick={() => setStatus("idle")}

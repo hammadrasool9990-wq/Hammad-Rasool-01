@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { chapters, profile } from "@/content";
 import { scrollToId } from "@/lib/scroll";
+import Logo from "./Logo";
 
 /**
  * The pinned chapter label (top-left), the brand mark (top-right)
@@ -63,8 +64,14 @@ export default function ChapterHUD() {
           e.preventDefault();
           scrollToId("top");
         }}
-        className={`fixed right-[var(--gutter)] top-5 z-50 label transition-colors duration-300 ${ink} hover:text-signal`}
+        className={`group fixed right-[var(--gutter)] top-4 z-50 label inline-flex items-center gap-2.5 transition-colors duration-300 ${ink} hover:text-signal`}
       >
+        <Logo
+          size={24}
+          dot={onFlare ? "var(--void)" : "var(--signal)"}
+          glow={!onFlare}
+          className="transition-transform duration-500 group-hover:-translate-y-0.5"
+        />
         {profile.brand}
         <span className="sr-only"> — back to top</span>
       </a>

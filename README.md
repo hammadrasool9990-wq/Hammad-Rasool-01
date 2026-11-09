@@ -50,17 +50,30 @@ Press `/` anywhere to open the terminal. Commands: `help`, `home`, `about`, `wor
 
 ## Contact form
 
-The form validates in the browser, then posts to `/api/contact`.
+The form validates in the browser, then posts to `/api/contact`, which emails every message to
+**AureVon9990@gmail.com** and **hammadrasool0009@gmail.com** (change the list with `CONTACT_TO_EMAIL`).
 
-- **Without setup:** the visitor's email app opens with the message pre-filled, and the page shows "Signal received."
-- **To receive messages directly:** create a free [Resend](https://resend.com) account, then in Vercel → Project → Settings → Environment Variables add `RESEND_API_KEY` (and optionally `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL`, see `.env.example`). Redeploy.
+**One-time setup (Gmail, free):**
+
+1. Sign in to the Gmail account that will send the messages (e.g. AureVon9990@gmail.com).
+2. Google Account → **Security** → turn on **2-Step Verification**.
+3. Search "App passwords" in your Google Account, create one (name it "Portfolio"), copy the 16-character code.
+4. Vercel → Project → **Settings → Environment Variables**, add:
+   - `GMAIL_USER` = that Gmail address
+   - `GMAIL_APP_PASSWORD` = the 16-character code
+5. **Redeploy** (Deployments → ⋯ → Redeploy). Env vars only apply to new deployments.
+
+If sending ever fails, the form says "Not sent yet" and offers to open the visitor's own email app instead
+of pretending it worked. Errors show up in Vercel → Project → **Logs** (search `[contact]`).
+
+Resend is still supported as an alternative (`RESEND_API_KEY`), see `.env.example`.
 
 ## Deploy to Vercel
 
 1. Push this folder to a new GitHub repository.
 2. Go to vercel.com → **Add New → Project** → import the repository. Vercel detects Next.js automatically; keep the defaults.
 3. Click **Deploy**.
-4. If the final URL isn't `https://aurevondev.vercel.app`, update `site.url` in `content.ts` (it feeds the canonical URL, sitemap and social cards) and redeploy.
+4. The site URL (canonical, sitemap, social cards) is picked up automatically from Vercel. If you add a custom domain, set `NEXT_PUBLIC_SITE_URL` in Vercel and redeploy.
 
 Or from the terminal: `npm i -g vercel && vercel`.
 

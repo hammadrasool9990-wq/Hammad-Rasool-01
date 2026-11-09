@@ -33,8 +33,18 @@ export type Project = {
 };
 
 export const site = {
-  /** The URL this site will live at. Used for SEO, sitemap and social cards. */
-  url: "https://aurevondev.vercel.app",
+  /**
+   * The URL this site lives at (SEO, sitemap, social cards).
+   * Filled in automatically from your Vercel project's main domain;
+   * set NEXT_PUBLIC_SITE_URL in Vercel only if you add a custom domain.
+   */
+  url:
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}`
+      : process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : "http://localhost:3000"),
   title: "Hammad Rasool — Web Developer & Digital Marketing Learner",
   description:
     "Hammad Rasool (AureVon) is a web developer and digital marketing learner in Lahore, Pakistan. Real, live projects built with React, TypeScript and Tailwind CSS.",
@@ -53,7 +63,6 @@ export const profile = {
     "True professional confidence comes from honesty, disciplined study, and genuine curiosity.",
   socials: {
     instagram: "https://www.instagram.com/aurevon9990/",
-    currentSite: "https://aurevondev.vercel.app",
     github: "{{TODO: GitHub URL}}",
     linkedin: "{{TODO: LinkedIn URL}}",
   },
