@@ -59,6 +59,8 @@ export const profile = {
   roles: ["Web Developer", "Digital Marketing Learner", "Aspiring Professional Marketer"],
   location: "Lahore, Pakistan",
   email: "AureVon9990@gmail.com",
+  /** Every address shown in the contact section (first one is the main email). */
+  emails: ["AureVon9990@gmail.com", "hammadrasool0009@gmail.com"],
   philosophy:
     "True professional confidence comes from honesty, disciplined study, and genuine curiosity.",
   socials: {

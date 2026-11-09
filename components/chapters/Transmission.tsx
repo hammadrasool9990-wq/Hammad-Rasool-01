@@ -23,7 +23,7 @@ function validate(d: { name: string; email: string; message: string }): Errors {
 /** 06/ TRANSMISSION — the moonlit end of the night. */
 export default function Transmission() {
   const root = useRef<HTMLElement>(null);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "handoff">("idle");
   const [mailto, setMailto] = useState("");
@@ -50,13 +50,13 @@ export default function Transmission() {
     { scope: root },
   );
 
-  const copy = async () => {
+  const copy = async (addr: string) => {
     try {
-      await navigator.clipboard.writeText(profile.email);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2200);
+      await navigator.clipboard.writeText(addr);
+      setCopied(addr);
+      setTimeout(() => setCopied((c) => (c === addr ? null : c)), 2200);
     } catch {
-      window.location.href = `mailto:${profile.email}`;
+      window.location.href = `mailto:${addr}`;
     }
   };
 
@@ -137,25 +137,30 @@ export default function Transmission() {
 
             <div className="tx-fade mt-10">
               <p className="label text-mist">Email</p>
-              <div className="mt-2 flex flex-wrap items-center gap-4">
-                <a
-                  href={`mailto:${profile.email}`}
-                  className="break-all text-[clamp(22px,3.2vw,46px)] font-semibold text-bone underline decoration-signal/40 decoration-1 underline-offset-8 transition-colors hover:text-signal"
-                >
-                  {profile.email}
-                </a>
-                <button
-                  type="button"
-                  onClick={copy}
-                  className="label inline-flex items-center gap-2 rounded-full border border-mist/40 px-3 py-2 text-mist transition-colors hover:border-signal hover:text-signal"
-                >
-                  {copied ? <Check size={14} strokeWidth={1.5} aria-hidden /> : <Copy size={14} strokeWidth={1.5} aria-hidden />}
-                  {copied ? "Copied" : "Copy"}
-                </button>
-                <span className="sr-only" aria-live="polite">
-                  {copied ? "Email address copied to clipboard" : ""}
-                </span>
-              </div>
+              <ul className="mt-2 space-y-3">
+                {profile.emails.map((addr) => (
+                  <li key={addr} className="flex flex-wrap items-center gap-4">
+                    <a
+                      href={`mailto:${addr}`}
+                      className="break-all text-[clamp(16px,2.2vw,32px)] font-semibold text-bone underline decoration-signal/40 decoration-1 underline-offset-8 transition-colors hover:text-signal"
+                    >
+                      {addr}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => copy(addr)}
+                      aria-label={`Copy ${addr}`}
+                      className="label inline-flex items-center gap-2 rounded-full border border-mist/40 px-3 py-2 text-mist transition-colors hover:border-signal hover:text-signal"
+                    >
+                      {copied === addr ? <Check size={14} strokeWidth={1.5} aria-hidden /> : <Copy size={14} strokeWidth={1.5} aria-hidden />}
+                      {copied === addr ? "Copied" : "Copy"}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <span className="sr-only" aria-live="polite">
+                {copied ? "Email address copied to clipboard" : ""}
+              </span>
             </div>
 
             <ul className="tx-fade mt-10 flex flex-wrap gap-3">
