@@ -30,6 +30,7 @@ const vertex = /* glsl */ `
   uniform float uPixelRatio;
   uniform vec2 uMouse;
   uniform float uMouseStrength;
+  uniform float uDim;
   varying float vAlpha;
   varying float vEmber;
   varying float vLight;
@@ -64,7 +65,7 @@ const vertex = /* glsl */ `
     gl_Position = projectionMatrix * mv;
     gl_PointSize = uSize * aRand.y * uPixelRatio / -mv.z * (1.0 + f * 1.2);
 
-    vAlpha = aRand.w * (0.25 + 0.75 * a) * (1.0 - uScatter * 0.7);
+    vAlpha = aRand.w * (0.25 + 0.75 * a) * (1.0 - uScatter * 0.7) * uDim;
     vEmber = aRand.z;
     vLight = f;
   }
@@ -93,16 +94,19 @@ export type Engine = { destroy: () => void };
 
 export async function startParticles(
   container: HTMLElement,
-  opts: { src: string; trigger: HTMLElement; onReady?: () => void },
+  opts: { src: string; alt?: string; trigger: HTMLElement; onReady?: () => void },
 ): Promise<Engine> {
   const small = innerWidth < 760 || (navigator.hardwareConcurrency ?? 8) <= 4;
   const COUNT = small ? 3600 : 10000;
 
+  const CROP = 0.78; // portion of the photo (from the top) that becomes particles
   let sampled;
+  let isPortrait = true;
   try {
-    sampled = await samplePortrait(opts.src, COUNT);
+    sampled = await samplePortrait(opts.src, COUNT, CROP);
   } catch {
     sampled = sampleDisc(COUNT);
+    isPortrait = false;
   }
 
   const renderer = new WebGLRenderer({ antialias: false, alpha: true, powerPreference: "high-performance" });
@@ -161,6 +165,7 @@ export async function startParticles(
     uPixelRatio: { value: dpr },
     uMouse: { value: new Vector2(99, 99) },
     uMouseStrength: { value: 0 },
+    uDim: { value: 1 },
     uSignal: { value: col("--signal", "#35E0E8") },
     uEmber: { value: col("--ember", "#FF8A3D") },
     uBone: { value: col("--bone", "#EDEBE6") },
@@ -177,6 +182,57 @@ export async function startParticles(
   points.frustumCulled = false;
   group.add(points);
 
+  // Reveal: the real photo, laid exactly over the particle portrait.
+  // Hover (or tap on touch screens) opens it from the pointer like a light coming on.
+  const reveal = document.createElement("div");
+  reveal.style.cssText =
+    "position:absolute;overflow:hidden;pointer-events:none;z-index:1;" +
+    "clip-path:circle(0px at 50% 50%);opacity:0;" +
+    "transition:clip-path .9s cubic-bezier(.77,0,.175,1),opacity .5s;" +
+        "-webkit-mask-image:linear-gradient(to right,transparent,#000 20%,#000 84%,transparent),linear-gradient(to bottom,transparent,#000 3%,#000 76%,transparent);-webkit-mask-composite:source-in;" +
+    "mask-image:linear-gradient(to right,transparent,#000 20%,#000 84%,transparent),linear-gradient(to bottom,transparent,#000 3%,#000 76%,transparent);mask-composite:intersect";
+  const photo = document.createElement("img");
+  photo.src = opts.src;
+  photo.alt = "";
+  photo.decoding = "async";
+  photo.draggable = false;
+  photo.style.cssText =
+    "display:block;width:100%;height:auto;transform:scale(1.04);transition:transform 1.2s cubic-bezier(.22,1,.36,1)";
+  reveal.appendChild(photo);
+  const hint = document.createElement("p");
+  const touch = matchMedia("(hover: none)").matches;
+  hint.textContent = touch ? "Tap to see the real me" : "Hover to see the real me";
+  hint.className = "label";
+  hint.style.cssText =
+    "position:absolute;z-index:1;pointer-events:none;color:var(--mist);opacity:0;transition:opacity .6s;" +
+    "transform:translateX(-50%);white-space:nowrap";
+  if (isPortrait) container.append(reveal, hint);
+
+  const rect = { x: 0, y: 0, w: 0, h: 0 };
+  const placeReveal = () => {
+    const halfW = (HEIGHT * sampled.aspect) / 2, halfH = HEIGHT / 2;
+    const s = group.scale.x;
+    const toScreen = (lx: number, ly: number) => {
+      const v = new Vector3(group.position.x + lx * s, group.position.y + ly * s, 0).project(camera);
+      return { x: ((v.x + 1) / 2) * container.clientWidth, y: ((1 - v.y) / 2) * container.clientHeight };
+    };
+    const tl = toScreen(-halfW, halfH), br = toScreen(halfW, -halfH);
+    Object.assign(rect, { x: tl.x, y: tl.y, w: br.x - tl.x, h: br.y - tl.y });
+    Object.assign(reveal.style, {
+      left: `${rect.x}px`, top: `${rect.y}px`, width: `${rect.w}px`, height: `${rect.h}px`,
+    });
+    // The particles only use the top CROP of the photo, so the image is taller than the frame.
+    photo.style.height = `${rect.h / CROP}px`;
+    photo.style.objectFit = "cover";
+    photo.style.objectPosition = "top";
+    // Wide screens: under the portrait. Phones: above the head, clear of the big name.
+    const wide = container.clientWidth / container.clientHeight > 1.05;
+    Object.assign(hint.style, {
+      left: `${rect.x + rect.w / 2}px`,
+      top: wide ? `${rect.y + rect.h * 0.9 + 12}px` : `${Math.max(56, rect.y - 6)}px`,
+    });
+  };
+
   // Layout: portrait sits to the right on wide screens, centred on narrow ones.
   const layout = () => {
     const w = container.clientWidth, h = container.clientHeight;
@@ -189,6 +245,7 @@ export async function startParticles(
     const s = wide ? 1 : Math.min(1, (visW * 0.95) / (HEIGHT * sampled.aspect));
     group.scale.setScalar(s);
     group.position.set(wide ? visW * 0.2 : 0, wide ? 0.05 : visH * 0.1, 0);
+    placeReveal();
   };
   layout();
   const ro = new ResizeObserver(layout);
@@ -211,7 +268,43 @@ export async function startParticles(
       strengthTarget = 1;
     }
   };
-  const onLeave = () => (strengthTarget = 0);
+  let open = false;
+  let ready = false; // portrait fully assembled
+  const canReveal = () => isPortrait && ready && uniforms.uScatter.value < 0.12;
+  const setOpen = (next: boolean, cx?: number, cy?: number) => {
+    if (next === open) return;
+    open = next;
+    const at = cx !== undefined && cy !== undefined ? `${cx - rect.x}px ${cy - rect.y}px` : "50% 50%";
+    const R = Math.hypot(rect.w, rect.h);
+    reveal.style.clipPath = `circle(${open ? R : 0}px at ${at})`;
+    reveal.style.opacity = open ? "1" : "0";
+    photo.style.transform = open ? "scale(1)" : "scale(1.04)";
+    hint.style.opacity = open || !ready ? "0" : "1";
+    gsap.to(uniforms.uDim, { value: open ? 0.12 : 1, duration: open ? 0.5 : 1.1, ease: "power2.out" });
+  };
+  const inside = (e: PointerEvent) => {
+    const r = container.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    return { x, y, hit: x >= rect.x && x <= rect.x + rect.w && y >= rect.y && y <= rect.y + rect.h * 0.92 };
+  };
+  const onHover = (e: PointerEvent) => {
+    if (e.pointerType === "touch") return;
+    const p = inside(e);
+    setOpen(p.hit && canReveal(), p.x, p.y);
+  };
+  const onTap = (e: PointerEvent) => {
+    if (e.pointerType !== "touch") return;
+    const p = inside(e);
+    if (p.hit && canReveal()) setOpen(!open, p.x, p.y);
+    else if (open) setOpen(false, p.x, p.y);
+  };
+  window.addEventListener("pointermove", onHover, { passive: true });
+  window.addEventListener("pointerdown", onTap, { passive: true });
+  const onLeave = (e: PointerEvent) => {
+    strengthTarget = 0;
+    // A finger lifting off the screen also fires "leave"; only a mouse leaving the page should close it.
+    if (e.pointerType !== "touch") setOpen(false);
+  };
   window.addEventListener("pointermove", onMove, { passive: true });
   document.addEventListener("pointerleave", onLeave);
 
@@ -220,7 +313,11 @@ export async function startParticles(
     canvas.style.opacity = "1";
     gsap.timeline()
       .to(uniforms.uBurst, { value: 1, duration: 1.4, ease: "expo.out" })
-      .to(uniforms.uAssemble, { value: 1, duration: 3.4, ease: "power2.inOut" }, 0.5);
+      .to(uniforms.uAssemble, { value: 1, duration: 3.4, ease: "power2.inOut" }, 0.5)
+      .add(() => {
+        ready = true;
+        if (!open) hint.style.opacity = "1";
+      });
   };
   const offIntro = bus.has("intro:done") ? (intro(), () => {}) : bus.on("intro:done", intro);
 
@@ -237,7 +334,11 @@ export async function startParticles(
     start: "top top",
     end: "bottom top",
     scrub: true,
-    onUpdate: (self) => (uniforms.uScatter.value = self.progress),
+    onUpdate: (self) => {
+      uniforms.uScatter.value = self.progress;
+      if (self.progress >= 0.12) setOpen(false);
+      if (ready && !open) hint.style.opacity = self.progress < 0.12 ? "1" : "0";
+    },
   });
 
   // Render only while visible.
@@ -258,8 +359,9 @@ export async function startParticles(
     uniforms.uTime.value += dt;
     uniforms.uMouse.value.lerp(mouseTarget, 0.12);
     uniforms.uMouseStrength.value += (strengthTarget - uniforms.uMouseStrength.value) * 0.06;
-    group.rotation.y += ((ndc.x * 0.12) - group.rotation.y) * 0.04;
-    group.rotation.x += ((-ndc.y * 0.06) - group.rotation.x) * 0.04;
+    const tilt = open ? 0 : 1;
+    group.rotation.y += ((ndc.x * 0.12 * tilt) - group.rotation.y) * 0.04;
+    group.rotation.x += ((-ndc.y * 0.06 * tilt) - group.rotation.x) * 0.04;
     renderer.render(scene, camera);
   };
   raf = requestAnimationFrame(loop);
@@ -274,6 +376,10 @@ export async function startParticles(
       io.disconnect();
       ro.disconnect();
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointermove", onHover);
+      window.removeEventListener("pointerdown", onTap);
+      reveal.remove();
+      hint.remove();
       document.removeEventListener("pointerleave", onLeave);
       geo.dispose();
       material.dispose();
