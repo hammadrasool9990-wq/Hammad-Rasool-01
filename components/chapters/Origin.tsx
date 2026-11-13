@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { gsap, useGSAP, MQ } from "@/lib/gsap";
 import { origin, photos, profile } from "@/content";
-import { T } from "@/lib/todo";
+import { isTodo } from "@/lib/todo";
 import Photo from "../Photo";
 
 /** 02/ ORIGIN — the paragraph lights up word by word as you scroll. */
@@ -74,9 +74,7 @@ export default function Origin() {
             ))}
           </p>
           <p className="mt-10 max-w-xl text-mist">{origin.aside}</p>
-          <p className="mt-3 max-w-xl text-mist">
-            <T>{origin.story}</T>
-          </p>
+          {origin.story && !isTodo(origin.story) && <p className="mt-3 max-w-xl text-bone">{origin.story}</p>}
         </div>
 
         <figure className="relative mx-auto w-full max-w-[440px]">

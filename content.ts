@@ -26,9 +26,12 @@ export type Project = {
   url: string;
   /** Real screenshot / screen recording of the project, from /public/images/projects/. */
   media: Photo & { video?: string | null };
+  /** Brand logo, shown on a panel in the project's own colour until a screenshot is added. */
+  logo?: { src: string; width: number; height: number; bg: string };
   problem: string;
   built: string;
-  learned: string;
+  /** Optional — the row is hidden when left out. */
+  learned?: string;
   tags: string[];
 };
 
@@ -65,8 +68,8 @@ export const profile = {
     "True professional confidence comes from honesty, disciplined study, and genuine curiosity.",
   socials: {
     instagram: "https://www.instagram.com/aurevon9990/",
-    github: "{{TODO: GitHub URL}}",
-    linkedin: "{{TODO: LinkedIn URL}}",
+    github: "",
+    linkedin: "https://www.linkedin.com/in/hammad-rasool6767/",
   },
 };
 
@@ -107,9 +110,10 @@ export const chapters = [
   { id: "noise", num: "01", label: "NOISE" },
   { id: "origin", num: "02", label: "ORIGIN" },
   { id: "lantern", num: "03", label: "THE LANTERN" },
-  { id: "work", num: "04", label: "SIGNAL" },
-  { id: "toolkit", num: "05", label: "TOOLKIT" },
-  { id: "contact", num: "06", label: "TRANSMISSION" },
+  { id: "experience", num: "04", label: "EXPERIENCE & EDUCATION" },
+  { id: "work", num: "05", label: "SIGNAL" },
+  { id: "toolkit", num: "06", label: "TOOLKIT" },
+  { id: "contact", num: "07", label: "TRANSMISSION" },
 ] as const;
 
 export const hero = {
@@ -124,7 +128,7 @@ export const origin = {
   paragraph:
     "I'm Hammad. I build for the web with React, TypeScript and Tailwind CSS, and I'm studying digital marketing so the things I build actually reach people. I don't have a decade behind me. I have work you can click. I would rather show you something real than claim years I haven't lived yet.",
   aside: "Developer by practice. Marketer in training. Learner by default.",
-  story: "{{TODO: add a line about your story, goals, or what you want next}}",
+  story: "Looking to grow your business online? Let's connect or send me a message.",
 };
 
 export const lantern = {
@@ -155,41 +159,168 @@ export const projects: Project[] = [
     oneLiner: "An online percentage calculator built for speed and clarity.",
     url: "https://quickpercent-avmu.vercel.app/",
     media: {
-      src: null, // e.g. "/images/projects/quickpercent.jpg"
+      src: "/images/projects/quickpercent.jpg",
       video: null, // e.g. "/images/projects/quickpercent.mp4"
-      alt: "Screenshot of the QuickPercent percentage calculator",
+      alt: "QuickPercent home page: “Calculate Percentages. Get Answers Fast.”",
       label: "QuickPercent screenshot",
-      width: 1600,
-      height: 1000,
+      width: 679,
+      height: 424,
     },
+    logo: { src: "/images/projects/quickpercent-logo.png", width: 739, height: 137, bg: "#fff8f7" },
     problem:
       "Percentages come up everywhere: discounts, price changes, comparing two values. People want the answer fast, without doing the maths by hand.",
     built:
-      "A clean, mobile-friendly calculator that works out percentages, compares values, calculates discounts and explains percentage change. Built with speed, accuracy and SEO-ready metadata in mind.",
-    learned: "{{TODO: what you learned building QuickPercent}}",
-    tags: ["Vercel", "SEO metadata", "Mobile-first", "{{TODO: stack, e.g. React · Tailwind}}"],
+      "A free, mobile-friendly suite of 8 dedicated calculators: work out percentages, compare values, find price discounts and understand percentage change. Every calculation runs instantly in the browser, with zero server tracking, and the site ships with SEO-ready metadata.",
+    tags: ["Vercel", "SEO metadata", "Mobile-first", "Client-side", "Privacy-first"],
   },
   {
     id: "faunavox",
     name: "FaunaVox",
-    oneLiner: "An interactive way to discover animals by sight and sound.",
+    oneLiner: "An interactive wildlife encyclopedia for young explorers.",
     url: "https://faunavox-interactive-animal-discovery.ai.studio/",
     media: {
-      src: null, // e.g. "/images/projects/faunavox.jpg"
+      src: "/images/projects/faunavox.jpg",
       video: null,
-      alt: "Screenshot of FaunaVox, the interactive animal discovery app",
+      alt: "FaunaVox home page: “Discover Animals. See Them. Hear Them. Learn.”",
       label: "FaunaVox screenshot",
-      width: 1600,
-      height: 1000,
+      width: 728,
+      height: 455,
     },
+    logo: { src: "/images/projects/faunavox-logo.png", width: 1057, height: 185, bg: "#faf8f5" },
     problem:
-      "Reading about animals is flat. Seeing them and hearing them makes learning stick.",
+      "Reading about animals is flat. Seeing them and hearing them makes learning stick, especially for kids.",
     built:
-      "An interactive discovery experience: explore animals, view photos, hear real wildlife sounds and read educational facts. Built with Google AI Studio.",
-    learned: "{{TODO: what you learned building FaunaVox}}",
-    tags: ["Google AI Studio", "Audio", "Interactive", "{{TODO: more stack details}}"],
+      "A digital wildlife book for curious kids, parents and classrooms. It answers three questions about every animal: what does it look like, what is its name, and what sound does it make? Explore animals with photos and facts, or play real wildlife sounds in the Sound Explorer. Built with Google AI Studio.",
+    tags: ["Google AI Studio", "Audio", "Interactive", "For kids & classrooms"],
+  },
+  {
+    id: "aura-clothing",
+    name: "Aura Clothing",
+    oneLiner: "A premium menswear storefront for a shirt brand selling to the USA and UK.",
+    url: "https://auraclothing-eight.vercel.app",
+    media: {
+      src: "/images/projects/aura-clothing.jpg",
+      video: null,
+      alt: "Aura Clothing home page: a model in a navy blazer under a UFO light beam, with giant AURA lettering",
+      label: "Aura Clothing screenshot",
+      width: 872,
+      height: 545,
+    },
+    logo: { src: "/images/projects/aura-clothing-logo.png", width: 678, height: 188, bg: "#0a1124" },
+    problem:
+      "A clothing brand lives or dies on first impressions. Shoppers decide in seconds whether a store feels premium enough to trust with their money.",
+    built:
+      "A dark, premium storefront for AURA-CLOTHING, a menswear brand selling shirts in the USA and UK. A cinematic hero (“Wear the signal”) with a UFO light beam over the model, collections for Formal, Casual, Statement and Old Money, a shop with a cart, and social share previews so the brand looks right wherever the link is posted.",
+    tags: ["Vercel", "E-commerce", "Brand website", "Responsive"],
   },
 ];
+
+export type Role = {
+  title: string;
+  org: string;
+  type: string;
+  start: string;
+  end: string;
+  location: string;
+  summary: string;
+  /** Short, scannable points. */
+  points: string[];
+};
+
+export type Study = {
+  level: string;
+  field: string;
+  school: string;
+  start: string;
+  end: string;
+  grade: string;
+  summary: string;
+  points: string[];
+};
+
+/** Education, as listed on LinkedIn. Newest first. */
+export const education = {
+  /** Headline numbers shown above the timeline. */
+  highlights: [
+    { value: "A+", label: "Grade in both Matric and FSc" },
+    { value: "3rd", label: "All Pakistan Hockey Tournament, nationwide" },
+    { value: "Captain", label: "College hockey team" },
+  ],
+  studies: [
+    {
+      level: "Intermediate",
+      field: "FSc Pre-Medical",
+      school: "Aspire College Gujranwala",
+      start: "Aug 2024",
+      end: "Mar 2026",
+      grade: "A+",
+      summary:
+        "Completed FSc Pre-Medical with an A+ grade while competing in hockey at district and national level.",
+      points: [
+        "Captain of the college hockey team: leadership, teamwork and sportsmanship",
+        "Represented the district in hockey tournaments and competitive events",
+        "Secured 3rd position nationwide with the team at the All Pakistan Hockey Tournament",
+        "Kept strong academic performance alongside college sports",
+      ],
+    },
+    {
+      level: "Matric",
+      field: "Science (Biology, Physics, Chemistry)",
+      school: "The Scholars Garrison",
+      start: "Aug 2022",
+      end: "Sep 2024",
+      grade: "A+",
+      summary:
+        "Completed Matriculation in Science with an A+ grade, balancing academics with an active role in the school's hockey.",
+      points: [
+        "Active hockey player, building discipline, leadership and sportsmanship",
+        "Developed communication, collaboration and time-management skills through sport",
+        "Balanced academic excellence with extracurricular activities",
+      ],
+    },
+  ] satisfies Study[],
+};
+
+/** Professional experience, as listed on LinkedIn. Newest first. */
+export const experience = {
+  intro:
+    "Great marketing brings visitors. A great website turns them into customers. I help businesses do both.",
+  lead:
+    "Digital Marketing Specialist and Website Developer, focused on one goal: driving measurable growth through strategy, creativity and data.",
+  roles: [
+    {
+      title: "Web Developer",
+      org: "NeXskill — Be Productive",
+      type: "Full-time",
+      start: "Nov 2026",
+      end: "Present",
+      location: "Lahore, Pakistan · Remote",
+      summary: "I design and develop modern, responsive websites that look great and perform even better.",
+      points: [
+        "Designed and developed modern, responsive websites for clients and internal projects",
+        "Built high-converting landing pages optimised for speed, user experience and conversions",
+        "Ensured websites work smoothly on mobile, tablet and desktop",
+        "Applied SEO best practices to improve visibility on Google",
+        "Collaborated with the team to deliver projects on time with clean, maintainable code",
+      ],
+    },
+    {
+      title: "Digital Marketing Specialist",
+      org: "Self-employed",
+      type: "Full-time",
+      start: "Aug 2026",
+      end: "Present",
+      location: "Lahore, Pakistan · Remote",
+      summary:
+        "I help businesses build a powerful online presence and achieve measurable, sustainable growth, combining strategic marketing with high-performing websites to generate more leads, increase sales and maximise return on investment.",
+      points: [
+        "Paid advertising: plan, launch and optimise data-driven campaigns across Google, Meta, YouTube and TikTok",
+        "Website development: modern, fast, fully responsive websites and landing pages built to convert",
+        "SEO: proven strategies that improve search visibility and attract high-quality organic traffic",
+      ],
+    },
+  ] satisfies Role[],
+};
 
 export const toolkit = {
   build: [
@@ -201,7 +332,6 @@ export const toolkit = {
     "Core Web Vitals",
     "Vercel",
     "Google AI Studio",
-    // "{{TODO: add more — JavaScript, Next.js, Git, Figma…}}",
   ],
   grow: [
     "SEO",

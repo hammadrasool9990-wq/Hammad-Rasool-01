@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import Hero from "@/components/chapters/Hero";
 import Origin from "@/components/chapters/Origin";
 import Lantern from "@/components/chapters/Lantern";
+import Experience from "@/components/chapters/Experience";
 import Work from "@/components/chapters/Work";
 import Toolkit from "@/components/chapters/Toolkit";
 import Transmission from "@/components/chapters/Transmission";
@@ -31,6 +32,7 @@ export default function Page() {
         <Hero />
         <Origin />
         <Lantern />
+        <Experience />
         <Work />
         <Toolkit />
         <Transmission />

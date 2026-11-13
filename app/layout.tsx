@@ -69,7 +69,7 @@ const sameAs = [
   profile.socials.instagram,
   profile.socials.github,
   profile.socials.linkedin,
-].filter((u) => !isTodo(u));
+].filter((u) => u && !isTodo(u));
 
 const personLd = {
   "@context": "https://schema.org",

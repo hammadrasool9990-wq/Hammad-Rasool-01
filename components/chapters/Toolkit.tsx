@@ -51,7 +51,7 @@ function Orbit({ title, items, ember, ccw }: { title: string; items: string[]; e
   );
 }
 
-/** 05/ TOOLKIT — BUILD and GROW. No percentage bars. */
+/** 06/ TOOLKIT — BUILD and GROW. No percentage bars. */
 export default function Toolkit() {
   const root = useRef<HTMLElement>(null);
 
@@ -82,7 +82,7 @@ export default function Toolkit() {
     >
       <div className="px-[var(--gutter)] md:pr-[calc(var(--gutter)+48px)]">
         <div className="mx-auto max-w-[1400px]">
-          <p className="label text-signal">05/ Toolkit</p>
+          <p className="label text-signal">06/ Toolkit</p>
           <h2 id="toolkit-title" className="display mt-4 text-[clamp(56px,10vw,150px)]">
             What I work with
           </h2>

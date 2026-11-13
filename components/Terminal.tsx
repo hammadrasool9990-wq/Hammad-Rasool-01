@@ -10,8 +10,9 @@ type Line = { kind: "in" | "out" | "err"; text: string };
 const HELP = [
   "home       → back to the start",
   "about      → 02/ origin",
-  "work       → 04/ the projects",
-  "contact    → 06/ transmission",
+  "experience → 04/ experience",
+  "work       → 05/ the projects",
+  "contact    → 07/ transmission",
   "grain-off  → toggle film grain",
   "mono       → toggle black-and-white mode",
   "clear      → clear the screen",
@@ -79,11 +80,14 @@ export default function Terminal() {
       case "about":
         go("origin", "→ 02/ origin");
         break;
+      case "experience":
+        go("experience", "→ 04/ experience");
+        break;
       case "work":
-        go("work", "→ 04/ signal");
+        go("work", "→ 05/ signal");
         break;
       case "contact":
-        go("contact", "→ 06/ transmission");
+        go("contact", "→ 07/ transmission");
         break;
       case "grain-off":
       case "grain-on":

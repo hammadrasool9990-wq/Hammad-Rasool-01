@@ -20,7 +20,7 @@ function validate(d: { name: string; email: string; message: string }): Errors {
   return e;
 }
 
-/** 06/ TRANSMISSION — the moonlit end of the night. */
+/** 07/ TRANSMISSION — the moonlit end of the night. */
 export default function Transmission() {
   const root = useRef<HTMLElement>(null);
   const [copied, setCopied] = useState<string | null>(null);
@@ -102,7 +102,7 @@ export default function Transmission() {
     { href: profile.socials.instagram, label: "Instagram", Icon: InstagramIcon },
     { href: profile.socials.github, label: "GitHub", Icon: GithubIcon },
     { href: profile.socials.linkedin, label: "LinkedIn", Icon: LinkedinIcon },
-  ].filter((s) => !isTodo(s.href));
+  ].filter((s) => s.href && !isTodo(s.href));
 
   const fieldErr = (k: keyof Errors) =>
     errors[k] ? (
@@ -119,7 +119,7 @@ export default function Transmission() {
       className="sky-moon relative overflow-hidden px-[var(--gutter)] pb-24 pt-32 md:pr-[calc(var(--gutter)+48px)]"
     >
       <div className="mx-auto max-w-[1400px]">
-        <p className="label text-signal">06/ Transmission</p>
+        <p className="label text-signal">07/ Transmission</p>
         <h2 id="contact-title" className="tx-head display mt-4 text-[clamp(80px,17vw,260px)]">
           <span className="sr-only">{contact.headline}</span>
           <span aria-hidden className="block overflow-hidden">

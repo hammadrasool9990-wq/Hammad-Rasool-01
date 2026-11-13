@@ -5,8 +5,14 @@ import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { gsap, useGSAP, MQ } from "@/lib/gsap";
 import { projects, type Project } from "@/content";
-import { T } from "@/lib/todo";
+import { T, isTodo } from "@/lib/todo";
 import Magnetic from "../Magnetic";
+
+function isDark(hex: string) {
+  const n = parseInt(hex.replace("#", ""), 16);
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  return 0.299 * r + 0.587 * g + 0.114 * b < 128;
+}
 
 function Media({ p }: { p: Project }) {
   const m = p.media;
@@ -35,6 +41,39 @@ function Media({ p }: { p: Project }) {
         sizes="(min-width: 900px) 55vw, 92vw"
         className="h-full w-full object-cover object-top transition-[filter] duration-300 group-hover:[filter:url(#rgb-split)]"
       />
+    );
+  }
+  if (p.logo) {
+    const l = p.logo;
+    return (
+      <div
+        className="relative flex h-full w-full items-center justify-center overflow-hidden"
+        style={{ background: l.bg }}
+        role="img"
+        aria-label={`${p.name} logo`}
+      >
+        {/* soft light behind the mark so the panel doesn't feel flat */}
+        <div
+          className="absolute inset-0 opacity-60 transition-opacity duration-700 group-hover:opacity-100"
+          style={{ background: "radial-gradient(60% 55% at 50% 50%, rgba(255,255,255,.12), transparent 70%)" }}
+          aria-hidden
+        />
+        <Image
+          src={l.src}
+          alt=""
+          width={l.width}
+          height={l.height}
+          unoptimized
+          className="relative h-auto w-[min(62%,var(--logo-max))] transition-transform duration-700 ease-[var(--ease)] group-hover:scale-105"
+          style={{ ["--logo-max" as string]: `${Math.round(l.width * 0.48)}px` }}
+        />
+        <span
+          className="label absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-60"
+          style={{ color: isDark(l.bg) ? "#edebe6" : "#07070b" }}
+        >
+          Live site ↗
+        </span>
+      </div>
     );
   }
   return (
@@ -86,11 +125,13 @@ function Scene({ p, i }: { p: Project; i: number }) {
           <p className="p-item mt-2 text-lg text-bone">{p.oneLiner}</p>
 
           <dl className="mt-6 space-y-4">
-            {[
-              ["Problem", p.problem],
-              ["What I built", p.built],
-              ["What I learned", p.learned],
-            ].map(([k, v]) => (
+            {(
+              [
+                ["Problem", p.problem],
+                ["What I built", p.built],
+                ["What I learned", p.learned],
+              ].filter(([, v]) => v && !isTodo(v)) as [string, string][]
+            ).map(([k, v]) => (
               <div key={k} className="p-item grid gap-1 border-t border-mist/15 pt-4 sm:grid-cols-[130px_1fr] sm:gap-4">
                 <dt className="label pt-1 text-signal">{k}</dt>
                 <dd className="text-[0.95em] text-mist">
@@ -126,7 +167,7 @@ function Scene({ p, i }: { p: Project; i: number }) {
   );
 }
 
-/** 04/ SIGNAL — the one red moment, then each project as its own pinned scene. */
+/** 05/ SIGNAL — the one red moment, then each project as its own pinned scene. */
 export default function Work() {
   const root = useRef<HTMLElement>(null);
 
@@ -191,7 +232,7 @@ export default function Work() {
         id="work-title"
         className="relative flex min-h-[100svh] flex-col justify-between bg-flare px-[var(--gutter)] pb-[var(--gutter)] pt-24 text-void"
       >
-        <p className="label">04/ Signal</p>
+        <p className="label">05/ Signal</p>
         <h2 id="work-heading" className="display text-[clamp(96px,26vw,420px)] leading-[0.8]">
           <span className="block overflow-hidden"><span className="work-word inline-block">The</span></span>
           <span className="block overflow-hidden"><span className="work-word inline-block">Work</span></span>
